@@ -3,6 +3,28 @@
 
   outputs = { ... }:
     let
+      # understanding that flake-utils.lib.eachDefaultSystem creates a system
+      # thsi creates a gem system for a gem.
+      mkGemSystem = system: name:
+        let
+          wrapped = rec {
+            inherit name system;
+            gems = pkgs.bundlerEnv configurations.bundlerConfig;
+            pkgs = import nixpkgs { inherit system; };
+            rflutils = ruby-flake-utils.lib;
+            funcs = rflutils.mkFuncs pkgs bins;
+            scripts = rflutils.mkScripts funcs;
+            envs = rflutils.mkEnvs pkgs configurations;
+            bins = rflutils.mkBins envs pkgs;
+            configurations = rflutils.mkConfigurations name pkgs envs scripts bins {
+              lockfile = ./Gemfile.lock;
+              gemfile = ./Gemfile;
+              gemset = ./gemset.nix;
+            };
+          }; 
+        in
+        wrapped;
+
       mkFuncs = pkgs: bins:
         {
           mkRubyScript =
