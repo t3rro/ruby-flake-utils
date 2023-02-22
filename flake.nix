@@ -3,27 +3,31 @@
 
   outputs = { ... }:
     let
-      mkFuncs = pkgs: {
-        mkRubyScript =
-          # take script and dispatch it with the local bundle binary
-          script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
-      };
+      mkFuncs = pkgs: bins:
+        {
+          mkRubyScript =
+            # take script and dispatch it with the local bundle binary
+            script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
+        };
 
-      mkScripts = funcs: {
-        rake = funcs.mkRubyScript "rake";
-        rubyDevScripts = [ scripts.rake ];
-      };
+      mkScripts = funcs: scripts:
+        {
+          rake = funcs.mkRubyScript "rake";
+          rubyDevScripts = [ scripts.rake ];
+        };
 
-      mkEnvs = pkgs: configurations: {
-        gems = pkgs.bundlerEnv configurations.bundlerConfig;
-      };
+      mkEnvs = pkgs: configurations:
+        {
+          gems = pkgs.bundlerEnv configurations.bundlerConfig;
+        };
 
-      mkBins = envs: {
-        ruby = pkgs.ruby_3_1;
-        bundle = "${envs.gems}/bin/bundle";
-      };
+      mkBins = envs: pkgs:
+        {
+          ruby = pkgs.ruby_3_1;
+          bundle = "${envs.gems}/bin/bundle";
+        };
 
-      mkConfigurations = name: pkgs:
+      mkConfigurations = name: pkgs: envs: scripts: bins:
         {
 
           bundlerConfig = {
@@ -54,12 +58,12 @@
     {
       # use lib keyword on outputs to expose nix functions
       lib = {
-        mkGemDefaults = { name, pkgs }: {
-          configurations = mkConfigurations name pkgs;
-          funcs = mkFuncs pkgs;
+        mkGemDefaults = { name, pkgs }: rec {
+          configurations = mkConfigurations name pkgs envs scripts bins;
+          funcs = mkFuncs pkgs bins;
           scripts = mkScripts funcs;
           envs = mkEnvs pkgs configurations;
-          envs = mkBins pkgs configurations;
+          bins = mkBins envs pkgs;
         };
       };
     };
