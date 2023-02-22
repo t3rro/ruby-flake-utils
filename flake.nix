@@ -26,13 +26,13 @@
           };
 
           thisSystem = rec {
-            packages = flake-utils.lib.flattenTree { default = wrapped.pkgs.stdenv.mkDerivation configurations.derivationConfig; };
+            packages = flake-utils.lib.flattenTree { default = wrapped.pkgs.stdenv.mkDerivation wrapped.configurations.derivationConfig; };
             defaultPackage = packages.default;
             devShell =
               let
-                derivationConfig = configurations.derivationConfig // {
+                derivationConfig = wrapped.configurations.derivationConfig // {
                   shellHook = "zsh";
-                  buildInputs = configurations.derivationConfig.buildInputs ++ [ wrapped.pkgs.zsh ];
+                  buildInputs = wrapped.configurations.derivationConfig.buildInputs ++ [ wrapped.pkgs.zsh ];
                 };
               in
               wrapped.pkgs.stdenv.mkDerivation derivationConfig;
