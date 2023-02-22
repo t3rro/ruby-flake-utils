@@ -8,28 +8,28 @@
         funcs = {
           mkRubyScript =
             # take script and dispatch it with the local bundle binary
-            script: pkgs.writeShellScriptBin script "${lib.gemDefaults.bins.bundle} exec ${script} $@";
+            script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
         };
 
         scripts = {
           rake = lib.gemDefaults.funcs.mkRubyScript "rake";
-          rubyDevScripts = [ lib.gemDefaults.scripts.rake ];
+          rubyDevScripts = [ scripts.rake ];
         };
 
         envs = {
-          gems = pkgs.bundlerEnv lib.gemDefaults.configurations.bundlerConfig;
+          gems = pkgs.bundlerEnv configurations.bundlerConfig;
         };
 
         bins = {
           ruby = pkgs.ruby_3_1;
-          bundle = "${lib.gemDefaults.envs.gems}/bin/bundle";
+          bundle = "${envs.gems}/bin/bundle";
         };
 
         configurations = {
 
           bundlerConfig = {
             inherit name;
-            ruby = lib.gemDefaults.bins.ruby;
+            ruby = bins.ruby;
             lockfile = ./Gemfile.lock;
             gemfile = ./Gemfile;
             gemset = ./gemset.nix;
@@ -39,11 +39,11 @@
             src = ./.;
             inherit name;
             buildInputs = [
-              lib.gemDefaults.bins.ruby
-              lib.gemDefaults.envs.gems
+              bins.ruby
+              envs.gems
               pkgs.makeWrapper
               pkgs.git
-            ] ++ lib.gemDefaults.scripts.rubyDevScripts;
+            ] ++ scripts.rubyDevScripts;
             installPhase = ''
               mkdir -p $out/{bin,share/${name}}
               cp -r * $out/share/${name}
