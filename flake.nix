@@ -1,7 +1,8 @@
 {
   description = "produce ruby flakes";
 
-  outputs = rec {
+  outputs = { ... }: rec {
+    # use lib keyword on outputs to expose nix functions
     lib = {
       mkGemDefaults = { name, pkgs }: {
         funcs = {
