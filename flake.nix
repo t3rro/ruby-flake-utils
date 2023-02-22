@@ -27,16 +27,13 @@
           bundle = "${envs.gems}/bin/bundle";
         };
 
-      mkConfigurations = name: pkgs: envs: scripts: bins:
+      mkConfigurations = name: pkgs: envs: scripts: bins: bundlerConfig:
         {
 
           bundlerConfig = {
             inherit name;
             ruby = bins.ruby;
-            lockfile = ./Gemfile.lock;
-            gemfile = ./Gemfile;
-            gemset = ./gemset.nix;
-          };
+          } // bundlerConfig;
 
           derivationConfig = {
             src = ./.;
