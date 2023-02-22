@@ -10,10 +10,10 @@
             script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
         };
 
-      mkScripts = funcs: scripts:
-        {
+      mkScripts = funcs:
+        rec {
           rake = funcs.mkRubyScript "rake";
-          rubyDevScripts = [ scripts.rake ];
+          rubyDevScripts = [ rake ];
         };
 
       mkEnvs = pkgs: configurations:
