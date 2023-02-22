@@ -5,7 +5,10 @@
   outputs = { flake-utils, ... }:
     let
       # include flake-utils context to make systems
-      # mkGemSystems = attrs: flake-utils.lib.eachDefaultSystem(system: mkGemSystem );
+      # mkGemSystems = attrs: let in flake-utils.lib.eachDefaultSystem(system: mkGemSystem );
+      mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: flake-utils.lib.eachDefaultSystem (
+        system: mkGemSystem system name nixpkgs lockfile gemfile gemset
+      );
 
 
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
