@@ -58,7 +58,7 @@
     {
       # use lib keyword on outputs to expose nix functions
       lib = {
-        mkConfigurations = mkConfigurations;
+        inherit mkConfigurations;
       };
     };
 }
