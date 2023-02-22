@@ -5,7 +5,7 @@
     let
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
       # thsi creates a gem system for a gem.
-      mkGemSystem = system: name: nixpkgs:
+      mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset:
         let
           wrapped = rec {
             inherit name system;
@@ -16,9 +16,7 @@
             envs = mkEnvs pkgs configurations;
             bins = mkBins envs pkgs;
             configurations = mkConfigurations name pkgs envs scripts bins {
-              lockfile = ./Gemfile.lock;
-              gemfile = ./Gemfile;
-              gemset = ./gemset.nix;
+              inherit lockfile gemfile gemset;
             };
           };
         in
