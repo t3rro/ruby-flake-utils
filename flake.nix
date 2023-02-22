@@ -59,6 +59,10 @@
       # use lib keyword on outputs to expose nix functions
       lib = {
         inherit mkConfigurations;
+        inherit mkScripts;
+        inherit mkFuncs;
+        inherit mkEnvs;
+        inherit mkBins;
       };
     };
 }
