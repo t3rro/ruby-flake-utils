@@ -1,8 +1,13 @@
 {
   description = "produce ruby flakes";
+  inputs.flake-utils.url = github:numtide/flake-utils;
 
-  outputs = { ... }:
+  outputs = { flake-utils, ... }:
     let
+      # include flake-utils context to make systems
+      # mkGemSystems = attrs: flake-utils.lib.eachDefaultSystem(system: mkGemSystem );
+
+
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
       # thsi creates a gem system for a gem.
       mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset:
@@ -19,8 +24,21 @@
               inherit lockfile gemfile gemset;
             };
           };
+
+          thisSystem = rec {
+            packages = flake-utils.lib.flattenTree { default = pkgs.stdenv.mkDerivation configurations.derivationConfig; };
+            defaultPackage = packages.default;
+            devShell =
+              let
+                derivationConfig = configurations.derivationConfig // {
+                  shellHook = "zsh";
+                  buildInputs = configurations.derivationConfig.buildInputs ++ [ pkgs.zsh ];
+                };
+              in
+              pkgs.stdenv.mkDerivation derivationConfig;
+          };
         in
-        wrapped;
+        thisSystem;
 
       mkFuncs = pkgs: bins:
         {
