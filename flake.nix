@@ -77,6 +77,7 @@
       # use lib keyword on outputs to expose nix functions
       lib = {
         inherit mkConfigurations;
+        inherit mkGemSystem;
         inherit mkScripts;
         inherit mkFuncs;
         inherit mkEnvs;
