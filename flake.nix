@@ -5,13 +5,12 @@
     let
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
       # thsi creates a gem system for a gem.
-      mkGemSystem = system: name: nixpkgs:
+      mkGemSystem = system: name: nixpkgs: rflutils:
         let
           wrapped = rec {
             inherit name system;
             gems = pkgs.bundlerEnv configurations.bundlerConfig;
             pkgs = import nixpkgs { inherit system; };
-            rflutils = ruby-flake-utils.lib;
             funcs = rflutils.mkFuncs pkgs bins;
             scripts = rflutils.mkScripts funcs;
             envs = rflutils.mkEnvs pkgs configurations;
