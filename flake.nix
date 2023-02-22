@@ -58,13 +58,7 @@
     {
       # use lib keyword on outputs to expose nix functions
       lib = {
-        mkGemDefaults = { name, pkgs }: rec {
-          configurations = mkConfigurations name pkgs envs scripts bins;
-          funcs = mkFuncs pkgs bins;
-          scripts = mkScripts funcs;
-          envs = mkEnvs pkgs configurations;
-          bins = mkBins envs pkgs;
-        };
+        inherit (self);
       };
     };
 }
