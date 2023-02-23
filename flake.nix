@@ -10,7 +10,7 @@
           (system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy src);
 
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
-      # thsi creates a gem system for a gem.
+      # this creates a gem system for a gem.
       mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset: strategy: src:
         let
           wrapped = rec {
@@ -18,7 +18,7 @@
             gems = pkgs.bundlerEnv configurations.bundlerConfig;
             pkgs = import nixpkgs { inherit system; };
             funcs = mkFuncs pkgs bins;
-            scripts = mkScripts funcs;
+            scripts = mkScripts funcs name;
             envs = mkEnvs pkgs configurations;
             bins = mkBins envs pkgs;
             configurations = mkConfigurations name pkgs envs scripts bins
@@ -34,13 +34,17 @@
           };
 
           thisSystem = rec {
-            packages = flake-utils.lib.flattenTree { default = wrapped.pkgs.stdenv.mkDerivation wrapped.configurations.derivationConfig; };
+            packages = flake-utils.lib.flattenTree {
+              default = wrapped.pkgs.stdenv.mkDerivation
+                wrapped.configurations.derivationConfig;
+            };
             defaultPackage = packages.default;
             devShell =
               let
                 derivationConfig = wrapped.configurations.derivationConfig // {
                   shellHook = "zsh";
-                  buildInputs = wrapped.configurations.derivationConfig.buildInputs ++ [ wrapped.pkgs.zsh ];
+                  buildInputs = wrapped.configurations.derivationConfig.buildInputs ++
+                    [ wrapped.pkgs.zsh ];
                 };
               in
               wrapped.pkgs.stdenv.mkDerivation derivationConfig;
@@ -55,11 +59,12 @@
             script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
         };
 
-      mkScripts = funcs:
+      mkScripts = funcs: name:
         rec {
           rake = funcs.mkRubyScript "rake";
           ruby = funcs.mkRubyScript "ruby";
-          rubyDevScripts = [ rake ruby ];
+          binScript = funcs.mkRubyScript name;
+          rubyDevScripts = [ rake ruby binScript ];
         };
 
       mkEnvs = pkgs: configurations:
