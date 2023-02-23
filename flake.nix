@@ -56,7 +56,9 @@
         {
           mkRubyScript =
             # take script and dispatch it with the local bundle binary
-            script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
+            script:
+            pkgs.writeShellScriptBin
+              script "${bins.bundle} exec ${script} $@";
         };
 
       mkScripts = funcs: name: pkgs: bins:
