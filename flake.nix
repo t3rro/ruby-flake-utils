@@ -18,7 +18,7 @@
             gems = pkgs.bundlerEnv configurations.bundlerConfig;
             pkgs = import nixpkgs { inherit system; };
             funcs = mkFuncs pkgs bins;
-            scripts = mkScripts funcs name pkgs;
+            scripts = mkScripts funcs name pkgs bins;
             envs = mkEnvs pkgs configurations;
             bins = mkBins envs pkgs;
             configurations = mkConfigurations name pkgs envs scripts bins
@@ -59,7 +59,7 @@
             script: pkgs.writeShellScriptBin script "${bins.bundle} exec ${script} $@";
         };
 
-      mkScripts = funcs: name: pkgs:
+      mkScripts = funcs: name: pkgs: bins:
         rec {
           rake = funcs.mkRubyScript "rake";
           ruby = funcs.mkRubyScript "ruby";
