@@ -83,11 +83,14 @@
           mkdir -p $out/{bin,share/${name}}
           cp -r * $out/share/${name}
           bin=$out/bin/${name}
+          binlib=$out/share/${name}/bin/${name}
+          bundle=${gems}/bin/bundle
+          ruby=${ruby}/bin/ruby
 
           # we are using bundle exec to start in the bundled environment
           cat > $bin <<EOF
           #!/bin/sh -e
-          exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/${name}/${name} "\$@"
+          exec $bundle exec $ruby $binlib "\$@"
           EOF
           chmod +x $bin
         '';
