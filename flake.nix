@@ -8,7 +8,7 @@
       # mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: strategy: src:
       #   flake-utils.lib.eachDefaultSystem
       #     (system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy src);
-      mkGemSystems = { system, name, nixpkgs, lockfile, gemfile, gemset, strategy, src, ... }:
+      mkGemSystems = { name, nixpkgs, lockfile, gemfile, gemset, strategy, src, ... }:
         flake-utils.lib.eachDefaultSystem (system: mkGemSystem { inherit system name nixpkgs lockfile gemfile gemset strategy src; });
 
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
