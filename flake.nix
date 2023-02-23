@@ -7,9 +7,7 @@
       # include flake-utils context to make systems
       mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: strategy:
         flake-utils.lib.eachDefaultSystem
-          (
-            system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy
-          );
+          (system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy);
 
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
       # thsi creates a gem system for a gem.
@@ -113,7 +111,7 @@
               pkgs.makeWrapper
               pkgs.git
             ] ++ scripts.rubyDevScripts;
-            installPhase = mkGemInstallPhase strategy name ruby gems;
+            installPhase = mkGemInstallPhase strategy name bins.ruby envs.gems;
           };
         };
     in
