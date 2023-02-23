@@ -1,13 +1,10 @@
 {
-  description = "produce ruby flakes";
+  description = "produce ruby gems binaries and flakes";
   inputs.flake-utils.url = github:numtide/flake-utils;
 
   outputs = { flake-utils, ... }:
     let
-      # include flake-utils context to make systems
-      # mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: strategy: src:
-      #   flake-utils.lib.eachDefaultSystem
-      #     (system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy src);
+      # main public interface to create gems and binaries in ruby
       mkGemSystems = { name, nixpkgs, lockfile, gemfile, gemset, strategy, src, ... }:
         flake-utils.lib.eachDefaultSystem (system: mkGemSystem { inherit system name nixpkgs lockfile gemfile gemset strategy src; });
 
@@ -131,13 +128,8 @@
     {
       # use lib keyword on outputs to expose nix functions
       lib = {
-        inherit mkConfigurations;
+        # inherit functions here to expose them outside the flake
         inherit mkGemSystems;
-        inherit mkGemSystem;
-        inherit mkScripts;
-        inherit mkFuncs;
-        inherit mkEnvs;
-        inherit mkBins;
       };
     };
 }
