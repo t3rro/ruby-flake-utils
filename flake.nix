@@ -5,14 +5,15 @@
   outputs = { flake-utils, ... }:
     let
       # include flake-utils context to make systems
-      # mkGemSystems = attrs: let in flake-utils.lib.eachDefaultSystem(system: mkGemSystem );
-      mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: flake-utils.lib.eachDefaultSystem (
-        system: mkGemSystem system name nixpkgs lockfile gemfile gemset
-      );
+      mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: strategy:
+        flake-utils.lib.eachDefaultSystem
+          (
+            system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy
+          );
 
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
       # thsi creates a gem system for a gem.
-      mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset:
+      mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset: strategy:
         let
           wrapped = rec {
             inherit name system;
@@ -22,9 +23,14 @@
             scripts = mkScripts funcs;
             envs = mkEnvs pkgs configurations;
             bins = mkBins envs pkgs;
-            configurations = mkConfigurations name pkgs envs scripts bins {
-              inherit lockfile gemfile gemset;
-            };
+            configurations = mkConfigurations name pkgs envs scripts bins strategy
+              {
+                inherit
+                  lockfile
+                  gemfile
+                  gemset;
+              };
+
           };
 
           thisSystem = rec {
@@ -67,7 +73,30 @@
           bundle = "${envs.gems}/bin/bundle";
         };
 
-      mkConfigurations = name: pkgs: envs: scripts: bins: bundlerConfig:
+      mkGemLibInstallPhase = name:
+        ''
+          mkdir -p $out/{bin,share/${name}}
+          cp -r * $out/share/${name}
+        '';
+
+      mkGemBinInstallPhase = name: ruby: gems:
+        ''
+          mkdir -p $out/{bin,share/${name}}
+          cp -r * $out/share/${name}
+          bin=$out/bin/${name}
+
+          # we are using bundle exec to start in the bundled environment
+          cat > $bin <<EOF
+          #!/bin/sh -e
+          exec ${gems}/bin/bundle exec ${ruby}/bin/ruby $out/share/${name}/${name} "\$@"
+          EOF
+          chmod +x $bin
+        '';
+
+      mkGemInstallPhase = strategy: name: ruby: gems:
+        if strategy == "bin" then mkGemBinInstallPhase name ruby gems else mkGemLibInstallPhase name;
+
+      mkConfigurations = name: pkgs: envs: scripts: bins: bundlerConfig: strategy:
         {
 
           bundlerConfig = {
@@ -84,11 +113,7 @@
               pkgs.makeWrapper
               pkgs.git
             ] ++ scripts.rubyDevScripts;
-            installPhase = ''
-              mkdir -p $out/{bin,share/${name}}
-              cp -r * $out/share/${name}
-            '';
-
+            installPhase = mkGemInstallPhase strategy name ruby gems;
           };
         };
     in
