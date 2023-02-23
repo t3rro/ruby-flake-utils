@@ -5,13 +5,13 @@
   outputs = { flake-utils, ... }:
     let
       # include flake-utils context to make systems
-      mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: strategy:
+      mkGemSystems = name: nixpkgs: lockfile: gemfile: gemset: strategy: src:
         flake-utils.lib.eachDefaultSystem
-          (system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy);
+          (system: mkGemSystem system name nixpkgs lockfile gemfile gemset strategy src);
 
       # understanding that flake-utils.lib.eachDefaultSystem creates a system
       # thsi creates a gem system for a gem.
-      mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset: strategy:
+      mkGemSystem = system: name: nixpkgs: lockfile: gemfile: gemset: strategy: src:
         let
           wrapped = rec {
             inherit name system;
@@ -21,7 +21,7 @@
             scripts = mkScripts funcs;
             envs = mkEnvs pkgs configurations;
             bins = mkBins envs pkgs;
-            configurations = mkConfigurations name pkgs envs scripts bins
+            configurations = mkConfigurations name pkgs envs scripts bins src
               {
                 inherit
                   lockfile
@@ -98,7 +98,7 @@
       mkGemInstallPhase = strategy: name: ruby: gems:
         if strategy == "bin" then mkGemBinInstallPhase name ruby gems else mkGemLibInstallPhase name;
 
-      mkConfigurations = name: pkgs: envs: scripts: bins: bundlerConfig: strategy:
+      mkConfigurations = name: pkgs: envs: scripts: bins: bundlerConfig: strategy: src:
         {
 
           bundlerConfig = {
@@ -107,8 +107,7 @@
           } // bundlerConfig;
 
           derivationConfig = {
-            src = ./.;
-            inherit name;
+            inherit name src;
             buildInputs = [
               bins.ruby
               envs.gems
