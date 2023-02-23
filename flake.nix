@@ -21,14 +21,15 @@
             scripts = mkScripts funcs;
             envs = mkEnvs pkgs configurations;
             bins = mkBins envs pkgs;
-            configurations = mkConfigurations name pkgs envs scripts bins src
+            configurations = mkConfigurations name pkgs envs scripts bins
               {
                 inherit
                   lockfile
                   gemfile
                   gemset;
               }
-              strategy;
+              strategy
+              src;
 
           };
 
