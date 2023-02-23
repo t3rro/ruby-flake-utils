@@ -52,7 +52,8 @@
       mkScripts = funcs:
         rec {
           rake = funcs.mkRubyScript "rake";
-          rubyDevScripts = [ rake ];
+          ruby = funcs.mkRubyScript "ruby";
+          rubyDevScripts = [ rake ruby ];
         };
 
       mkEnvs = pkgs: configurations:
