@@ -63,7 +63,7 @@
         rec {
           rake = funcs.mkRubyScript "rake";
           ruby = funcs.mkRubyScript "ruby";
-          binScript = pkgs.writeShellScriptBin name "${bins.bundle} exec bin/${name}";
+          binScript = pkgs.writeShellScriptBin name "${bins.bundle} exec ${ruby} bin/${name}";
           rubyDevScripts = [ rake ruby binScript ];
         };
 
