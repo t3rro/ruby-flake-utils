@@ -79,6 +79,23 @@
           bundle = "${envs.gems}/bin/bundle";
         };
 
+      #########################################################################
+      # install phase.
+      # depending on the kind of ruby project being built you can choose
+      # 
+      # lib - a ruby library with no binary or running daemon
+      # app - a ruby daemon or application which needs its dependencies bundled
+      # bin - a ruby binary
+      #########################################################################
+
+      mkGemAppInstallPhase = name: gems:
+        ''
+          mkdir -p $out/{bin,share/${name}}
+          mkdir -p $out/share/gems
+          cp -r * $out/share/${name}
+          cp -r ${gems} $out/share/gems
+        '';
+
       mkGemLibInstallPhase = name:
         ''
           mkdir -p $out/{bin,share/${name}}
@@ -103,7 +120,11 @@
         '';
 
       mkGemInstallPhase = strategy: name: ruby: gems:
-        if strategy == "bin" then mkGemBinInstallPhase name ruby gems else mkGemLibInstallPhase name;
+        if strategy == "bin" then mkGemBinInstallPhase name ruby gems
+        else if strategy == "app" then mkGemAppInstallPhase name gems
+        else mkGemLibInstallPhase name;
+
+      #########################################################################
 
       mkConfigurations = name: pkgs: envs: scripts: bins: bundlerConfig: strategy: src:
         {
