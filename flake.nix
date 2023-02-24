@@ -91,9 +91,9 @@
       mkGemAppInstallPhase = name: gems:
         ''
           mkdir -p $out/{bin,share/${name}}
-          mkdir -p $out/share/gems
           cp -r * $out/share/${name}
-          cp -r ${gems} $out/share/gems
+          mkdir -p $out/share/gems/lib
+          cp -r ${gems}/lib $out/share/gems/lib
         '';
 
       mkGemLibInstallPhase = name:
