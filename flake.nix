@@ -92,8 +92,7 @@
         ''
           mkdir -p $out/{bin,share/${name}}
           cp -r * $out/share/${name}
-          mkdir -p $out/share/gems/lib
-          cp -r ${gems}/lib $out/share/gems/lib
+          cp -r ${gems}/lib $out/share/gems
         '';
 
       mkGemLibInstallPhase = name:
